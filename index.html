@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0b">
+<title>动态</title>
+<style>
+  :root {
+    --bg: #0a0a0b;
+    --fg: #f2f4f7;
+    --body: #a9b5c4;
+    --dim: #5c6572;
+    --accent: #4a9eff;
+    --line: rgba(255,255,255,.07);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC",
+                 "Helvetica Neue", Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 0 24px 100px; }
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 32px 0 20px;
+    background: linear-gradient(var(--bg) 76%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  header h1 { font-size: 30px; font-weight: 700; letter-spacing: -.02em; }
+  header .sub { font-size: 12px; color: var(--dim); white-space: nowrap; }
+
+  .date-sep {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin: 30px 0 2px;
+    font-size: 12px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+  .date-sep span { color: #8a94a3; font-weight: 600; }
+  .date-sep em { font-style: normal; opacity: .6; }
+  .date-sep::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+    transform: translateY(-3px);
+  }
+
+  /* ── 时间轴 ── */
+  .timeline { position: relative; padding-left: 26px; }
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 12px;
+    bottom: 12px;
+    width: 1.5px;
+    background: linear-gradient(to bottom,
+      rgba(74,158,255,.42) 0%,
+      rgba(255,255,255,.11) 12%,
+      rgba(255,255,255,.05) 72%,
+      rgba(255,255,255,0) 100%);
+  }
+  .post { position: relative; padding: 20px 0 24px; }
+  .post:last-child { padding-bottom: 4px; }
+  .post::before {
+    content: "";
+    position: absolute;
+    left: -26px;
+    top: 27px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 1.5px solid #38424f;
+    transition: border-color .2s;
+  }
+  .post:hover::before { border-color: #5a6b80; }
+  .post.newest::before {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(74,158,255,.13);
+  }
+
+  .post h2 {
+    font-size: 19px;
+    font-weight: 650;
+    line-height: 1.42;
+    letter-spacing: -.01em;
+    margin-bottom: 8px;
+    color: var(--fg);
+  }
+  .post p { color: var(--body); margin-bottom: 3px; }
+
+  .thumb {
+    margin-top: 14px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #14161a;
+    border: 1px solid rgba(255,255,255,.05);
+    max-height: 420px;
+  }
+  .thumb img {
+    display: block;
+    width: 100%;
+    height: auto;
+    opacity: 0;
+    transition: opacity .35s;
+  }
+  .thumb img.loaded { opacity: 1; }
+
+  .meta { margin-top: 12px; min-height: 1px; }
+  .src {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: #6fb4ff;
+    text-decoration: none;
+    padding: 3px 9px;
+    border-radius: 6px;
+    background: rgba(74,158,255,.09);
+    transition: background .15s, color .15s;
+  }
+  .src:hover { background: rgba(74,158,255,.18); color: #8ec6ff; }
+  .src::before { content: "↗"; opacity: .65; font-size: 11px; }
+
+  .empty { padding: 80px 0; text-align: center; color: var(--dim); font-size: 14px; }
+
+  footer {
+    margin-top: 40px;
+    padding-top: 22px;
+    border-top: 1px solid var(--line);
+    font-size: 12px;
+    color: var(--dim);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  footer .end { letter-spacing: .04em; }
+  .refresh {
+    background: none;
+    border: 1px solid var(--line);
+    color: #8a94a3;
+    font-size: 12px;
+    padding: 4px 11px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color .15s, color .15s;
+  }
+  .refresh:hover { border-color: rgba(255,255,255,.2); color: var(--fg); }
+
+  @media (max-width: 520px) {
+    .wrap { padding: 0 16px 80px; }
+    header { padding: 22px 0 14px; }
+    header h1 { font-size: 25px; }
+    .post h2 { font-size: 17.5px; }
+    body { font-size: 14.5px; }
+    .timeline { padding-left: 22px; }
+    .post::before { left: -22px; top: 25px; }
+    .thumb img { max-height: 260px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>动态</h1>
+    <span class="sub">6 条 · 3 图</span>
+  </header>
+  <div class="timeline">
+  <div class="date-sep"><span>今天</span><em>2026-11-20</em></div><article class="post newest"><h2>神墓第四季立项了，但最快也是明年</h2><p>第三季 52 集年番 7 月收官，第四季官方已立项，继续 52 集年番模式，还没定档也没放 PV。行业预估 2027 年上半年——这是推测不是官宣。第三季结尾彩蛋纳兰若水亮相，就是给第四季埋的线。</p><div class="meta"><a class="src" href="https://www.sohu.com/a/1067532593_122968698" target="_blank" rel="noopener noreferrer">sohu.com</a></div></article><article class="post"><h2>剑来第三季锁定 2027，今年不用等了</h2><p>6 月 12 日官宣就定了：体量扩到 40 集、2027 年上线、云图制作，10 月底又进了腾讯 2027 片单。具体季度没官宣，网上传暑期档和 Q4 两派，都别当真。预约已破 200 万，《十三之争》大电影和真人剧《笼中雀》也全排在 2027。</p><div class="meta"><a class="src" href="https://post.smzdm.com/p/a264460d/" target="_blank" rel="noopener noreferrer">post.smzdm.com</a></div></article><article class="post"><h2>从周五到周三天天有货，追的九部番排满了</h2><p>近 7 天在追的番剧全部有新集，节奏是连着的：周五沧元图，周六光阴之外 48 集、</p><p>凡人修仙传 200 集、择日飞升 20 集，周日仙逆 167 集、牧神记 109 集，</p><p>周一斩苍穹 18 集，周二遮天 190 集，周三师兄啊师兄 168 集。</p><p>凡人到 200 集了，仙逆按 200 集的总量还剩 33 集。</p><div class="meta"></div></article><article class="post"><h2>DeepSeek 调用时的联网搜索抓取不收钱了，还分时段半价</h2><p>11 月 18 日 12:00 起，模型调用里触发的服务端搜索和网页抓取不再单独计费，只算 token。另外它按北京时间分时段定价：工作日 9–12、14–18 算高峰，其余时间和整个周末都是半价。跑 agent 的话，批量活挪到晚上或周末，单价直接砍一半。</p><div class="thumb"><img src="images/11b53173ab8f25bc.jpg" loading="lazy" alt=""></div><div class="meta"><a class="src" href="https://api-docs.deepseek.com/zh-cn/quick_start/pricing/" target="_blank" rel="noopener noreferrer">api-docs.deepseek.com</a></div></article><article class="post"><h2>完美世界不是烂尾，是停了十三周攒帝关大战</h2><p>本地数据里它从 9 月 25 日之后就没新集，下一集挂到 12 月 31 日——那是 9 月 24 日官方公告的排期：正片停十三周，跨年复播，当周连更两集，产能全砸帝关那一战。停更期间速看版和主创直播没断。</p><div class="thumb"><img src="images/deaf6b258ac7bafc.jpg" loading="lazy" alt=""></div><div class="meta"><a class="src" href="https://www.163.com/dy/article/LBRMH2P6055678A7.html" target="_blank" rel="noopener noreferrer">163.com</a></div></article><article class="post"><h2>师兄啊师兄下周三全剧终，169 集一刀不拆</h2><p>11 月 25 日第 169 集收官，2023 年开播到现在三年五季。官方说好不追加集数，伐天那场终局战完整留在正片，不单拆剧场版。追了三年的东西要落地了，下周三留点时间。</p><div class="thumb"><img src="images/3299241d07a79b63.jpg" loading="lazy" alt=""></div><div class="meta"><a class="src" href="https://www.163.com/dy/article/LBKH8J1D055669QJ.html" target="_blank" rel="noopener noreferrer">163.com</a></div></article>
+  </div>
+  <footer>
+    <span class="end">已显示全部 6 条 · 2026-11-20 12:07 更新</span>
+    <button class="refresh" onclick="location.reload()">刷新</button>
+  </footer>
+</div>
+<script>
+  document.querySelectorAll('.thumb img').forEach(function (im) {
+    if (im.complete && im.naturalWidth) im.classList.add('loaded');
+    else im.addEventListener('load', function () { im.classList.add('loaded'); });
+    im.addEventListener('error', function () {
+      var t = im.closest('.thumb');
+      if (t) t.remove();
+    });
+  });
+  // 每 15 分钟自动刷新，只在顶部时刷，避免打断阅读
+  setInterval(function () {
+    if (window.scrollY < 120) location.reload();
+  }, 15 * 60 * 1000);
+</script>
+</body>
+</html>
