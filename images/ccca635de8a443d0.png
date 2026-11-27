@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="https://cdn02.teleai.com.cn/teleAI.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="天翼AI开放平台-中国电信" />
+    <meta content="天翼AI,AI开放平台,中国电信AI,星辰大模型,天翼AI开放平台,电信AI,电信大模型" name="keywords">
+    <meta content="中电信人工智能科技有限公司是中国电信旗下开展人工智能业务的科技型、能力型、平台型专业公司,致力于成为通用人工智能服务提供商。依托完全自主研发的星辰基础大模型,构建层次分明的标准能力、行业应用、平台管理和智能硬件的产品体系,全方面满足个人、家庭、政企客户多样化需求,以全栈式人工智能服务助推社会智能化变革。" name="description">
+    <meta content="中电信人工智能科技有限公司是中国电信旗下开展人工智能业务的科技型、能力型、平台型专业公司,致力于成为通用人工智能服务提供商。依托完全自主研发的星辰基础大模型,构建层次分明的标准能力、行业应用、平台管理和智能硬件的产品体系,全方面满足个人、家庭、政企客户多样化需求,以全栈式人工智能服务助推社会智能化变革。" property="og:description" name="og:description">
+    <title>天翼AI开放平台-中国电信</title>
+    <!-- 静态资源加载失败自动整页重试：只在 /transfer（天翼一键登录回跳中间页）启用；资源失败整页重来一次，10s 限流防死循环 -->
+    <script>
+      (function () {
+        // TA移动端反馈的白屏问题目前只发现在 /transfer，其他路径不启用本逻辑，避免扩大影响面
+        if (location.pathname !== '/transfer') return;
+
+        var retried = {};
+        var RELOAD_KEY = '__static_reload_ts__';
+        var RELOAD_GAP_MS = 10000;
+
+        // 整页重来一次：JS 失败会记入浏览器 module map、CSS 失败会让 Vite 的 chunk 预加载 reject，
+        // 两者都无法靠单文件重试恢复（实测：CSS 重试成功组件也不渲染），只能整页刷新；
+        // 10s 内只刷一次，防止资源持续不可用时反复刷新；sessionStorage 不可用时宁可不刷
+        function reloadOnce() {
+          try {
+            var last = Number(sessionStorage.getItem(RELOAD_KEY) || 0);
+            if (Date.now() - last < RELOAD_GAP_MS) return;
+            sessionStorage.setItem(RELOAD_KEY, String(Date.now()));
+          } catch (e) {
+            return;
+          }
+          location.reload();
+        }
+
+        document.addEventListener(
+          'error',
+          function (e) {
+            var el = e.target;
+            if (!el || (el.tagName !== 'SCRIPT' && el.tagName !== 'LINK')) return;
+            // modulepreload 等非样式 link 不处理
+            if (el.tagName === 'LINK' && el.rel !== 'stylesheet') return;
+            var url = el.src || el.href;
+            if (!url) return;
+            try {
+              var u = new URL(url, location.href);
+              // 只处理自家域名的资源（teleai.com.cn 主域及其 CDN 子域）
+              if (!/(^|\.)teleai\.com\.cn$/.test(u.hostname)) return;
+              // 避免打断本成功的登录、避免二次消费 appId/paras/sign
+              if (window.__TRANSFER_APP_MOUNTED__) return;
+              // SCRIPT 只处理入口模块（入口失败应用起不来才需要救；sensorsdata 等打点失败不影响功能）
+              if (el.tagName === 'SCRIPT' && !/\/js\/main\/main\.|\/js\/\.pnpm\/\.pnpm\.|\/src\/main\.ts/.test(u.pathname)) return;
+              // 每个资源只处理一次；后续失败会再次进入本监听，被这里拦住，不会循环
+              if (retried[u.origin + u.pathname]) return;
+              retried[u.origin + u.pathname] = true;
+              reloadOnce();
+            } catch (err) {
+              /* 忽略异常，不影响页面原有流程 */
+            }
+          },
+          true
+        );
+      })();
+    </script>
+    <script type="module" crossorigin src="https://cdn02.teleai.com.cn/js/.pnpm/.pnpm.b04e9bd5.1795707761757.js"></script>
+    <script type="module" crossorigin src="https://cdn02.teleai.com.cn/js/main/main.62f8e4d8.1795707761757.js"></script>
+    <link rel="stylesheet" href="https://cdn02.teleai.com.cn/static/css/.pnpm.8f3ca01f.1795707761757.css">
+    <link rel="stylesheet" href="https://cdn02.teleai.com.cn/static/css/main.c7cdc653.1795707761757.css">
+  </head>
+  <body>
+    <div id="app" style="height: 100%"></div>
+    
+  </body>
+</html>
